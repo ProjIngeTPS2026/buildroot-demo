@@ -1,0 +1,20 @@
+#!/usr/bin/pulseaudio -nF
+
+# Local control socket
+load-module module-native-protocol-unix
+
+# ALSA cards/sinks
+load-module module-udev-detect
+
+# Bluetooth integration (BlueZ)
+.ifexists module-bluetooth-policy.so
+load-module module-bluetooth-policy auto_switch=2
+.endif
+.ifexists module-bluetooth-discover.so
+load-module module-bluetooth-discover
+.endif
+
+# Keep audio routing resilient
+load-module module-default-device-restore
+load-module module-always-sink
+load-module module-rescue-streams
