@@ -139,9 +139,11 @@
 */
 
 &codec {
-    status = "enabled";
+    status = "okay";
+    allwinner,audio-routing =
+    "Headphone", "HP";
 };
 
 &codec_analog {
-    status = "enabled";
+    status = "okay";
 };
