@@ -72,6 +72,7 @@
                 // 1.2Ghz expérimental
                 // pas stable au long terme
                 // à 910mv -> semble stable sur t113-s4
+                /*
 		opp-1200000000 {
 			opp-hz = /bits/ 64 <1200000000>;
 			opp-microvolt = <910000 910000 910000>;
@@ -98,13 +99,13 @@
 };
 
 &cpu0 {
-	cpu-supply = <&reg_dcdc2>;
+	cpu-supply = <&reg_vcc_core>;
         operating-points-v2 = <&opp_table_cpu>;
         clock-frequency = <288000000>;  // changé pour freq minimale, car c'est ce que schedutil à l'air d'utiliser comme freq de repos.
 };
 
 &cpu1 {
-	cpu-supply = <&reg_dcdc2>;
+	cpu-supply = <&reg_vcc_core>;
         operating-points-v2 = <&opp_table_cpu>;
         clock-frequency = <288000000>;
 };

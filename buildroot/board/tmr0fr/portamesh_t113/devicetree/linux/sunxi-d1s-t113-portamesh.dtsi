@@ -17,8 +17,8 @@
 		stdout-path = "serial3:115200n8";
 	};
 
-/*
-	///* board wide 5V supply directly from the USB-C socket
+
+	// board wide 5V supply directly from the USB-C socket
 	reg_vcc5v: regulator-5v {
 		compatible = "regulator-fixed";
 		regulator-name = "vcc-5v";
@@ -27,7 +27,7 @@
 		regulator-always-on;
 	};
 
-	///* SY8008 DC/DC regulator on the board
+	// SY8008 DC/DC regulator on the board
 	reg_3v3: regulator-3v3 {
 		compatible = "regulator-fixed";
 		regulator-name = "vcc-3v3";
@@ -36,7 +36,7 @@
 		vin-supply = <&reg_vcc5v>;
 	};
 
-	///* SY8008 DC/DC regulator on the board, also supplying VDD-SYS
+	// SY8008 DC/DC regulator on the board, also supplying VDD-SYS
 	reg_vcc_core: regulator-core {
 		compatible = "regulator-fixed";
 		regulator-name = "vcc-core";
@@ -45,7 +45,7 @@
 		vin-supply = <&reg_vcc5v>;
 	};
 
-        ///* temporary virtual 1.8v regulator
+        // temporary virtual 1.8v regulator
 	reg_1v8: regulator-1v8 {
 		compatible = "regulator-fixed";
 		regulator-name = "vcc-3v3";
@@ -53,162 +53,22 @@
 		regulator-max-microvolt = <1800000>;
 		vin-supply = <&reg_vcc5v>;
 	};
-*/
-/*
-        // Regulateurs
-reg_1v8 {
-    device-parent = <&reg_aldo1>;
-};
-reg_3v3 {
-    device-parent = <&reg_dcdc1>;
-};
-reg_vcc_core {
-    device-parent = <&reg_dcdc2>;
-};
-*/
-
-        backlight_lcd:backlight {
-		compatible = "pwm-backlight";
-		pwms = <&pwm 7 1000000 0>;    // 1.000.000 ns -> 1khz // TODO : augmenter fréquence et voir si changement conso.
-		//           ^ ^
-		//           | |_period in ns
-		//           |_pwm channel
-                //pwm-names = "lcd_backlight";
-                brightness-levels = <  0   1   1   1   1   2   2   2
-                                        2   3   3   3   3   4   4   4
-                                        5   5   5   6   6   6   7   7
-                                        8   8   8   9   9   9  10  10
-                                        10  11  11  12  12  12  13  13
-                                        14  14  14  15  15  16  16  17
-                                        17  17  18  18  19  19  20  20
-                                        21  21  21  22  22  23  23  24
-                                        24  25  25  26  26  27  27  28
-                                        28  29  30  30  31  31  32  32
-                                        33  33  34  35  35  36  36  37
-                                        38  38  39  39  40  41  41  42
-                                        43  43  44  44  45  46  47  47
-                                        48  49  49  50  51  51  52  53
-                                        54  54  55  56  57  57  58  59
-                                        60  61  61  62  63  64  65  65
-                                        66  67  68  69  70  71  71  72
-                                        73  74  75  76  77  78  79  80
-                                        81  82  83  84  85  86  87  88
-                                        89  90  91  92  93  94  95  96
-                                        97  98  99 101 102 103 104 105
-                                        106 108 109 110 111 112 114 115
-                                        116 117 119 120 121 123 124 125
-                                        127 128 129 131 132 133 135 136
-                                        138 139 141 142 144 145 147 148
-                                        150 151 153 154 156 157 159 161
-                                        162 164 166 167 169 171 173 174
-                                        176 178 180 181 183 185 187 189
-                                        191 192 194 196 198 200 202 204
-                                        206 208 210 212 214 216 219 221
-                                        223 225 227 229 232 234 236 238
-                                        241 242 244 246 248 250 253 255>;
-		default-brightness-level = <128>;
-
-
-		power-supply = <&panel_power>;
-                /*
-                enable-gpios = <&gpio 58 0>;
-		post-pwm-on-delay-ms = <10>;
-		pwm-off-delay-ms = <10>;
-                */
+	
+	/* XC6206 LDO on the board */
+	reg_avdd2v8: regulator-avdd {
+		compatible = "regulator-fixed";
+		regulator-name = "avdd2v8";
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+		vin-supply = <&reg_3v3>;
 	};
-
-        // revoir ça
-        panel_power:panel_power {
-                compatible = "regulator-fixed";
-                regulator-name = "panel-power";
-                regulator-min-microvolt = <10400000>;
-                regulator-max-microvolt = <10400000>;
-                //gpio = <&pio 7 12 GPIO_ACTIVE_HIGH>; /* PH12 */
-                //enable-active-high;
-                regulator-always-on;
-                regulator-boot-on;
-        };
-
-        panel:panel {
-                port {
-			panel_input: endpoint {
-				remote-endpoint = <&tcon_lcd0_out_panel>;
-			};
-		};
-	};
-
+	/*
         // Wifi
         wifi_pwrseq: wifi-pwrseq {
             compatible = "mmc-pwrseq-simple";
             reset-gpios = <&pio 6 12 GPIO_ACTIVE_LOW>; //PG12
         };
-
-        // Boutons
-        // TODO : marche pas en mode interrupt. Aucun event. Electriquement tout va bien : pullups activées et descent à 0v quand boutons appuyés.
-        face_keys: gpio-face-keys {
-            //compatible = "gpio-keys"; // charge ok. Marche pas
-            compatible = "gpio-keys-polled";
-            poll-interval = <10>;  // en ms -> 100hz
-            //autorepeat;
-            status = "disabled";
-        };
-
-        leds-pwm {
-            compatible = "pwm-leds";
-
-            // LEDs rétroéclairage touches à coté de l'écran
-            led-kbd-bl {
-                //label = "button-backlight"; // TODO : essayer de trouver un meilleur nom : https://www.kernel.org/doc/Documentation/leds/well-known-leds.txt
-                color = <LED_COLOR_ID_GREEN>;   // TODO : changer en blanc si led blanche
-                function = LED_FUNCTION_KBD_BACKLIGHT;
-                pwms = <&pwm 5 10000 0>;    // 10.000 ns -> 100khz    // TODO : fréquence choisie au hasard. Voir si meilleur choix
-                max-brightness = <255>;
-                default-brightness-level = <128>;
-                //default-state = "on";
-            };
-
-            // TODO : led rgb
-        };
-
-        leds {
-            compatible = "gpio-leds";
-
-            // Partie verte de la LED bicolore à coté du port USB. La partie rouge est controlée par le PMIC. (sensée indiquer la charge...)
-            // NOTE : LED sur expander GPIO I2C -> changement lent et pas de PWM.
-            led-chg-green {
-                color = <LED_COLOR_ID_GREEN>;
-                gpios = <&gpioext 2 GPIO_ACTIVE_LOW>;
-                linux,default-trigger = "heartbeat";
-                function = LED_FUNCTION_STATUS;//LED_FUNCTION_HEARTBEAT;
-            };
-
-            // TODO : led charge pmic
-        };
-
-        // Battery
-        // Doit être ici, car définition d'un nouveau noeud.
-        // J'aimerais idéalement qu'elle soit au niveau du PMIC
-        // TODO : revoir valeurs : courant charge. Température charge. overvolt thr. precharge. recharge thr...
-        // https://www.kernel.org/doc/Documentation/devicetree/bindings/power/supply/battery.yaml
-        battery: battery {
-            compatible = "simple-battery";
-            device-chemistry = "lithium-ion";           // Il faudrait préciser, mais franchement je sais pas ce que les chinois ont mis dans la batterie qu'on a.
-            voltage-min-design-microvolt = <3000000>;   // les régulateurs du AXP81x ne sont que des buck,
-                                                        // donc si on descend en dessous de 3.3v à la batterie, le rail 3.3v descend aussi. Et on veut limiter ça.
-                                                        // J'ai testé et en charge, à <3.1v ça déconne (rétroéclairage qui scintille, etc...). Et à 3.047000V ça s'est éteint brutalement
-                                                        // à 380mA, il s'est passé moins de 5 minutes entre 3.1v et 3v, donc autant s'éteindre à 3.1v et que ça ne crash pas brutalement à 3v.
-                                                        // NOTE : ce n'est pas le BMS de la batterie qui s'est éteint, c'est le PMIC qui a choisi. Est-ce qu'il s'est éteint parce qu'il
-                                                        // n'arrivait plus à tenir les tensions de sortie, où parce que j'ai mis ce paramètre à 3v et que la tension à atteint 3v ?
-                                                        // Après mesure (avec multimètre) à vide, la batterie est à 3.2v, mais à 3v en décharge à 380mA (mesurée par le PMIC)
-                                                        // Donc la résistance interne de cette batterie chinoise merdique est ENORME. ça où le layout de la PCB...
-                                                        // Du coup je laisse à 3v pour l'instant.
-            voltage-max-design-microvolt = <4200000>;
-            energy-full-design-microwatt-hours = <7400000>; // ( 3.7v * 2 Ah ) * 10^6   // TODO : changer à 4 Ah quand on aura les bonnes batteries
-            constant-charge-current-max-microamp = <1200000>;   // courant de charge max de 1.2A. Choisi au doigt mouillé.
-                                                                // Aussi parce que courant de base choisi par AXP813 avant qu'on ajoute ça au device tree et ma batterie n'as pas explosée.
-                                                                // changer à 2.4 quand on aura les 2 batteries.
-        };
-
+      */
 };
 
 &dcxo {
@@ -223,17 +83,10 @@ reg_vcc_core {
 &mmc0 {
 	pinctrl-0 = <&mmc0_pins>;
 	pinctrl-names = "default";
-	vmmc-supply = <&reg_dcdc1>;
-	cd-gpios = <&pio 2 3 GPIO_ACTIVE_LOW>; // PC3
+	vmmc-supply = <&reg_3v3>;
+	cd-gpios = <&pio 5 6 GPIO_ACTIVE_LOW>;
 	disable-wp;
 	bus-width = <4>;
-        max-frequency = <150000000>;  // NOTE : supposé être à 1.8v alors que notre éléctronique est bloquée à 3.3v
-        //no-1-8-v;
-        cap-sd-highspeed;
-        sd-uhs-sdr50;
-        sd-uhs-sdr104;      // NOTE : ça il sait pas le faire à 3.3v, mais on verra bien si ça marche
-        sd-uhs-ddr50;
-
 	status = "okay";
 };
 
@@ -242,59 +95,11 @@ reg_vcc_core {
 };
 
 &pio {
-        // TODO: changer alims
-	/*vcc-pb-supply = <&reg_dcdc1>;
-	vcc-pd-supply = <&reg_dcdc1>;
-	vcc-pe-supply = <&reg_dcdc1>;
-	vcc-pf-supply = <&reg_dcdc1>;
-	vcc-pg-supply = <&reg_dcdc1>;*/
-        // pwm rétroéclairage LCD
-        pwm7_pin: pwm7-pin {
-            pins = "PD22";
-            function = "pwm7";
-        };
-        // pwm rétroéclairage boutons/keypad
-        pwm5_pin: pwm5-pin {
-            pins = "PF6";
-            function = "pwm5";
-        };
-        // I2C2 pour OLED, IMU, digitizer CTP écran LCD, GPIO extender
-        i2c2_pins: i2c2-pins {
-            pins = "PE12", "PE13";
-            function = "i2c2";
-        };
-
-        // I2C1 pour PMIC AXP813
-        i2c0_pins: i2c0-pins {
-            pins = "PB2", "PB3";
-            function = "i2c0";
-        };
-        // Pour LoRa
-        spi0_pins: spi0-pins {
-                pins = "PC2", "PC4", "PC5";
-                function = "spi0";
-        };
-        // pour module Bluetooth
-        uart2_pe2_pins: uart2-pe2-pins {
-            pins = "PE2", "PE3";
-            function = "uart2";
-        };
-        uart2_pe0_rts_cts_pins: uart2-pe0-rts-cts-pins {
-            pins = "PE0", "PE1";
-            function = "uart2";
-        };
-
-        /*
-        gt911_irq_pin: gt911-irq-pin {
-            pins = "PB3";
-            function = "irq";
-        };
-
-        gt911_reset_pin: gt911-reset-pin {
-            pins = "PB2";
-            function = "gpio_out";
-        };
-        */
+	vcc-pb-supply = <&reg_3v3>;
+	vcc-pd-supply = <&reg_3v3>;
+	vcc-pe-supply = <&reg_avdd2v8>;
+	vcc-pf-supply = <&reg_3v3>;
+	vcc-pg-supply = <&reg_3v3>;
 };
 
 // console
@@ -310,203 +115,12 @@ reg_vcc_core {
 	status = "okay";
 };
 
-/*
- * USB1 non connexté sur PCB rev0
 &usbphy {
 	usb1_vbus-supply = <&reg_vcc5v>;
 	status = "okay";
 };
-*/
 
-// I2C
-&i2c2 {
-    pinctrl-names = "default";
-    pinctrl-0 = <&i2c2_pins>;
-    status = "okay";
-    clock-frequency = <400000>; // apparently the gt911 onyl works reliably at 400khz. (and more ?)
-    // NOTE : vvv i don't think this should be here
-    #address-cells = <1>;
-    #size-cells = <0>;
-    // capacitive touchscreen
-    touchscreen@14 {
-        //pinctrl-names = "default";
-        //pinctrl-0 = <&gt911_irq_pin>, <&gt911_reset_pin>;
-        compatible = "goodix,gt911";
-        reg = <0x14>;
-        interrupt-parent = <&pio>;
-        interrupts = <1 4 IRQ_TYPE_EDGE_RISING>;    // PB 4
-        irq-gpios = <&pio 1 4 GPIO_ACTIVE_HIGH>;    // PB 4
-        reset-gpios = <&pio 1 5 GPIO_ACTIVE_HIGH>;  // PB 5 // ACTIVE HIGH ???
-    };
-    // small I2C OLED
-    oled: ssd1306_i2c@3c {
-        compatible = "solomon,ssd1306fb-i2c";
-        reg = <0x3c>;
-        solomon,height = <32>;
-        solomon,width = <128>;
-        solomon,com-seq;
-        solomon,com-invdir;
-        solomon,page-offset = <0>;
-        solomon,prechargep1 = <2>;
-        solomon,prechargep2 = <13>;
-    };
-    // GPIO extender
-    gpioext: gpio@20 {
-        compatible = "nxp,pca9574";
-        reg = <0x20>;
-        gpio-controller;
-        #gpio-cells = <2>;
-        interrupt-controller;
-        #interrupt-cells = <2>;
-        interrupt-parent = <&pio>;
-        interrupts = <2 7 IRQ_TYPE_EDGE_FALLING>;   // PC 7
-        reset-gpios = <&pio 2 6 GPIO_ACTIVE_LOW>;   // PC 6
-        gpio-line-names =   "gps-reset_n", "gps-pwron", "chgled-green", "lcd-en",
-                            "user-btn1_n", "user-btn2_n", "user-btn3_n", "user-btn4_n";
-    };
-    // IMU
-    // TODO : add driver https://github.com/marcinbis/icm20948-mod
-    imu: icm20948@68 {
-        compatible = "invensense,icm20948";
-        reg = <0x68>;
-        interrupt-parent = <&pio>;
-        interrupts = <6 8 IRQ_TYPE_EDGE_FALLING>;     // PG 8
-        vdd-supply = <&reg_aldo1>;
-        vddio-supply = <&reg_aldo1>;
-    };
-
-};
-
-// PMIC AXP813
-&i2c0 {
-    pinctrl-names = "default";
-    pinctrl-0 = <&i2c0_pins>;
-    status = "okay";
-    clock-frequency = <400000>; // oled go fast
-    #address-cells = <1>;
-    #size-cells = <0>;
-
-    axp81x: pmic@34 {  // NOTE : nom axp81x obligé parce que référencén dans axp81x.dtsi, que l'on inclus après
-        compatible = "x-powers,axp813";
-        reg = <0x34>;
-        // Les "gros" CPUs/AP allwinner inrègrent un CPU de "gestion" : AR100. Celui-ci gère la mise en veille du CPU, etc...
-        // Le pin INT du PMIC/RTC semble normalement connecté au pin "NMI" du CPU, qui est également partagé avec l'AR100
-        // Ainsi, les interruptions sont souvent confirgurées telles que :
-        //      interrupt-parent = <&r_intc>;
-        //      interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_LOW>;   // ou  <0 IRQ_TYPE_LEVEL_LOW>;
-        // r_intc étant le coontrôleur d'interrupt partagé entre ARM et AR100 ? --> https://linux-sunxi.org/INTC
-        // Le t113-S3 n'intègre pas de CPU de gestion (AR100), l'interrupt du PMIC est donc connectée à un GPIO "normal" : PG11
-        // Cela veut également dire que les interruptions du PMIC sont masquables puisqu'on a pas vraiment de NMI.
-        // TODO : voir si le DSP du t113-s3 ne pourrait pas prendre le rôle du AR100. ?
-        interrupt-parent = <&pio>;
-        interrupts = <6 11 IRQ_TYPE_LEVEL_LOW>; // PG 11
-        /*  On utilise pas ces régulateurs et on les alimente avec PMIC_PS / IPSOUT. Mais je regarde ça pour pas oublier que ça existe.
-        eldoin-supply = <&reg_dcdc1>;
-        fldoin-supply = <&reg_dcdc5>;
-        swin-supply = <&reg_dcdc1>;
-        */
-        //x-powers,drive-vbus-en;   // on a pas d'USB OTG pour l'instant sur la rev.0 du hw.
-    };
-};
-
-
-// ----- PMIC ZONE
-
-#include "allwinner/axp81x.dtsi"
-
-// --- POWER SOURCES
-
-&ac_power_supply {
-    status = "okay";
-};
-
-// https://www.kernel.org/doc/Documentation/devicetree/bindings/power/supply/x-powers%2Caxp20x-battery-power-supply.yaml
-&battery_power_supply {
-    x-powers,no-thermistor = "false"; // on a une thermistance (de 10k)
-    monitored-battery = <&battery>;
-    status = "okay";
-};
-
-// --- LDOs
-
-&reg_aldo1 {
-    /* Alimente les périphériques 1.8v, tels que l'IMU
-     */
-	regulator-always-on;
-	regulator-min-microvolt = <1800000>;
-	regulator-max-microvolt = <1800000>;
-	regulator-name = "reg_1v8";
-};
-
-&reg_aldo2 {
-    /* Alimente le contrôleur de DRAM interne au CPU. 1.8v fixe
-     */
-	regulator-always-on;
-	regulator-min-microvolt = <1800000>;
-	regulator-max-microvolt = <1800000>;
-	regulator-name = "dram-pll";
-};
-
-// LDO RTC Always ON
-
-&reg_rtc_ldo {
-	regulator-name = "vcc-rtc";
-};
-
-// --- DCDCs
-
-&reg_dcdc1 {
-    /* Alimente tout ce qui est en 3.3v.
-     * Liste non exhaustive :
-     * - WIFI/BT
-     * - Radio LORA SX1262
-     * - I/O CPU
-     * - SD
-     * - GPIOEXT
-     * - LEDs
-     * - PULLUPs Boutons
-     * - LCD
-     * - Flyback LCD (selon choix jumper R63/R65. Sinon alimenté par IPSOUT)
-     * - GPS (indirectement car son 3.3v est ensuite switché localement par un FET)
-     * - PULLUP interrupt PMIC/RTC
-     *
-     * Utilisé comme régulateur 3.3v fixe.
-     */
-    regulator-always-on;
-    regulator-min-microvolt = <3300000>;
-    regulator-max-microvolt = <3300000>;
-    regulator-name = "reg_3v3";
-};
-
-&reg_dcdc2 {
-    /* Alimente le CPU : CPU0, CPU1 ; SYS0, SYS1, SYS2
-     * Range tensions non décrit dans le datasheet du T113-s3. Seulement 0.9v
-     * En fait si, décrit dans datasheet v1.9 : 0.85v à 0.99v. Mais d'expérience ça tourne pas à 0.85v
-     * ça vaudrait le coup de reessayer depuis que la clock-latency à été ajoutée, car ça à l'air d'aider énormément avec la stabilité.
-     * Contrôlé par DVFS. On a choisi 0.7v à 1v de manière arbitraire.
-     */
-	regulator-always-on;
-	regulator-min-microvolt = <700000>;
-	regulator-max-microvolt = <1000000>;
-	regulator-name = "reg_vcc_core";
-};
-
-&reg_dcdc5 {
-    /* Alimente la DRAM (interne au CPU)
-     * 1.24v fixe. Devrait être 1.25, mais PMIC a pas l'air d'accepter.
-     * On peut surement déscendre un peu, si la freq mémoire est basse. Voir même faire du DVFS
-     * Le datasheet v1.9 mentionne 1.5v mais ça doit être un erreur. En tout cas ça à l'air de bien marcher à 1.24v
-     */
-	regulator-always-on;
-	regulator-min-microvolt = <1240000>;
-	regulator-max-microvolt = <1240000>;
-	regulator-name = "vcc-dram";
-};
-
-
-// ----- END OF PMIC ZONE
-
-
+/*
 &spi0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&spi0_pins>;
@@ -522,164 +136,12 @@ reg_vcc_core {
 		spi-max-frequency = <10000000>;
 	};
 };
+*/
 
-
-/* video */
-
-&de {
-	status = "okay";
+&codec {
+    status = "enabled";
 };
 
-&tcon_lcd0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&lcd_rgb666_pins>;
-	status = "okay";
-};
-
-&tcon_lcd0_out {
-	tcon_lcd0_out_panel: endpoint@0 {
-		reg = <0>;
-		remote-endpoint = <&panel_input>;
-	};
-};
-
-// NOTE : le PWM n'est pas supporté pour sun20i. Un patch existe dans le mailing list du kernel, et est normalement appliqué par buildroot
-//        Le patch se trouve dans le dossier "board/tmr0fr/portamesh_t113/patch/linux/".
-&pwm {
-      pinctrl-names = "default";
-      pinctrl-0 = <&pwm7_pin>,   // PD22
-                  <&pwm5_pin>;   // PF6
-      status = "okay";
-};
-
-&panel {
-        compatible = "logictechno,lttd800480070-l6wh-rt", "simple-panel";
-        power-supply = <&panel_power>;
-        backlight = <&backlight_lcd>;
-        enable-gpios = <&gpioext 3 GPIO_ACTIVE_HIGH>; // TODO : remplacer par son nom
-};
-
-// resistive touch screen
-&rtp {
-        allwinner,tp-sensitive-adjust = <0xf>;
-        allwinner,filter-type = <0x1>;
-        allwinner,ts-attached;
-        status = "okay";
-};
-
-// GPS
-// GNSS géré par noyau Linux. Fait apparaitre un character device /dev/gnss0
-// qui sort les message NMEA
-// GPS sur UART1 : PG6 PG7
-//         PPS : PG9
-//         RESET et POWERON sur GPIO extender
-&uart1 {
-    pinctrl-names = "default";
-    pinctrl-0 = <&uart1_pg6_pins>;
-    status = "okay";
-    gnss {
-        compatible = "globaltop,pa6h";  // const for mediatek GNSS
-
-        vcc-supply = <&reg_dcdc1>;
-        vbackup-supply = <&reg_dcdc1>;
-
-        enable-gpios = <&gpioext 1 GPIO_ACTIVE_HIGH>; // TODO : remplacer par son nom
-        reset-gpios = <&gpioext 0 GPIO_ACTIVE_LOW>; // TODO : remplacer par son nom
-        timepulse-gpios = <&pio 6 9 GPIO_ACTIVE_HIGH>; // PG 9
-
-        current-speed = <9600>;
-    };
-};
-
-// Bluetooth
-// Intégré dans module SDIO Fn-Link 6223A-SRD
-// Utilise le chipset RTL8723ds. La partie BT communique en UART
-// Connecté sur UART2 : PE2 PE3
-//      avec RTS/CTS  : PE0 PE1
-//      DEVICE WAKE   : PG13
-//      HOST WAKE     : PG14
-//      ENABLE/nRESET : PG15
-&uart2 {
-    pinctrl-names = "default";
-    pinctrl-0 = <&uart2_pe2_pins>, <&uart2_pe0_rts_cts_pins>;
-    uart-has-rtscts;
-    status = "okay";
-
-    bluetooth {
-        compatible = "realtek,rtl8723ds-bt";
-        device-wake-gpios = <&pio 6 13 GPIO_ACTIVE_HIGH>; /* PG 13 */
-        host-wake-gpios = <&pio 6 14 GPIO_ACTIVE_HIGH>; /* PG 14 */
-        enable-gpios = <&pio 6 15 GPIO_ACTIVE_HIGH>; /* PG 15 */
-    };
-};
-
-
-// Wifi
-
-&mmc1 {
-    pinctrl-names = "default";
-    pinctrl-0 = <&mmc1_pins>;
-    vmmc-supply = <&reg_dcdc1>;
-    mmc-pwrseq = <&wifi_pwrseq>;
-    non-removable;
-
-    bus-width = <4>;
-    max-frequency = <150000000>;  // NOTE : supposé être à 1.8v alors que notre éléctronique est bloquée à 3.3v
-    no-1-8-v;
-    cap-sd-highspeed;
-    sd-uhs-sdr50;
-    sd-uhs-sdr104;      // NOTE : ça il sait pas le faire à 3.3v, mais on verra bien si ça marche
-    sd-uhs-ddr50;
-    status = "okay";
-
-    rtl8723ds: wifi@1 {
-        // TODO : finir définition interface (vitesses, suspend, interrupts, wake, ...)
-        reg = <1>;
-        host-wake-gpios = <&pio 6 10 GPIO_ACTIVE_HIGH>; /* PG 10 */ // <-- pas sûr que ce soit nécéssaire, en fait...
-        interrupt-parent = <&pio>;
-        interrupts = <6 10 IRQ_TYPE_LEVEL_HIGH>; /* PG10 */
-        interrupt-names = "host-wake";
-    };
-};
-
-&face_keys {
-    // Boutons en facade
-    // Pour l'instant, les touches n'ont pas de rôle défini, donc on leur donne un keycode réservé pour les macros...
-    // https://github.com/torvalds/linux/blob/master/include/uapi/linux/input-event-codes.h#L694
-    status = "okay";
-    face-key1 {
-            label = "Face Key 1";
-            //linux,code = <0x290>;
-            linux,code = <102>; // home
-            gpios = <&gpioext 4 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
-            //interrupt-parent = <&gpioext>;
-            //interrupts = <4 IRQ_TYPE_LEVEL_LOW>;
-    };
-
-    face-key2 {
-            label = "Face Key 2";
-            //linux,code = <0x291>;
-            linux,code = <158>; // back
-            gpios = <&gpioext 5 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
-            //interrupt-parent = <&gpioext>;
-            //interrupts = <5 IRQ_TYPE_LEVEL_LOW>;
-    };
-
-    face-key3 {
-            label = "Face Key 3";
-            //linux,code = <0x292>;
-            linux,code = <0x160>; // ok
-            gpios = <&gpioext 6 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
-            //interrupt-parent = <&gpioext>;
-            //interrupts = <6 IRQ_TYPE_LEVEL_LOW>;
-    };
-
-    face-key4 {
-            label = "Face Key 4";
-            //linux,code = <0x293>;
-            linux,code = <15>; // tab
-            gpios = <&gpioext 7 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
-            //interrupt-parent = <&gpioext>;
-            //interrupts = <7 IRQ_TYPE_LEVEL_LOW>;
-        };
+&codec_analog {
+    status = "enabled";
 };

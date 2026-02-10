@@ -6,5 +6,3 @@ tmpfs           /dev/shm        tmpfs   mode=1777       0       0
 tmpfs           /tmp            tmpfs   mode=1777       0       0
 tmpfs           /run            tmpfs   mode=0755,nosuid,nodev  0       0
 sysfs           /sys            sysfs   defaults        0       0
-# change that to filesystem name
-/dev/mmcblk0p2   /root           ext4    rw,auto,errors=remount-ro   0   1
