@@ -1,0 +1,42 @@
+#!/bin/sh
+#
+# Start Bluetooth agent at boot
+#
+
+DAEMON="/usr/bin/bt-agent"
+DAEMON_ARGS="-c NoInputNoOutput -p /etc/bluetooth/pin.conf"
+PIDFILE="/var/run/bt-agent.pid"
+
+start() {
+    echo "Starting bt-agent..."
+    start-stop-daemon -S -q -m -p "$PIDFILE" -x "$DAEMON" -- $DAEMON_ARGS &
+}
+
+stop() {
+    echo "Stopping bt-agent..."
+    start-stop-daemon -K -q -p "$PIDFILE"
+}
+
+restart() {
+    stop
+    sleep 1
+    start
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart)
+        restart
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+        ;;
+esac
+
+exit 0
