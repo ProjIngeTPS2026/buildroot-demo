@@ -1,0 +1,15 @@
+{
+  "base_id": "base-beta",
+  "name": "Point 2",
+  "description": "Point de rassemblement réel 2",
+  "lat": 48.52533838981292,
+  "lon": 7.737472504916174,
+  "control_port": 18102,
+  "discovery_port": 17100,
+  "megaphone_port": 19102,
+  "multicast_address": "239.42.0.10",
+  "multicast_port": 19100,
+  "discovery_interval_ms": 2000,
+  "media_root": "config/simulation/runtime/base-beta",
+  "audio_output_uri": "pulse://default"
+}

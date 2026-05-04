@@ -1,0 +1,15 @@
+{
+  "base_id": "base-epsilon",
+  "name": "Point 5",
+  "description": "Point de rassemblement réel 5",
+  "lat": 48.5268539765464,
+  "lon": 7.738904235081361,
+  "control_port": 18105,
+  "discovery_port": 17100,
+  "megaphone_port": 19105,
+  "multicast_address": "239.42.0.10",
+  "multicast_port": 19100,
+  "discovery_interval_ms": 2000,
+  "media_root": "config/simulation/runtime/base-epsilon",
+  "audio_output_uri": "pulse://default"
+}

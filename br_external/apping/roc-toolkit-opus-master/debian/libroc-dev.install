@@ -1,0 +1,4 @@
+#! /usr/bin/dh-exec
+usr/include/roc usr/include
+usr/lib/${DEB_HOST_MULTIARCH}/libroc.so usr/lib/${DEB_HOST_MULTIARCH}
+usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig/roc.pc usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig

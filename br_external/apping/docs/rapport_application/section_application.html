@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Partie application - Sonorisation point de rassemblement</title>
+<style>
+  body { font-family: Arial, sans-serif; font-size: 11pt; line-height: 1.35; color: #111; }
+  h1 { font-size: 18pt; margin-top: 20px; }
+  h2 { font-size: 15pt; margin-top: 18px; }
+  h3 { font-size: 12.5pt; margin-top: 14px; }
+  p { margin: 6px 0; }
+  ul { margin-top: 4px; }
+  li { margin: 4px 0; }
+  figure { margin: 14px 0 18px 0; page-break-inside: avoid; }
+  figcaption { font-style: italic; font-size: 9.5pt; color: #333; margin-top: 4px; }
+  img { width: 15.8cm; max-width: 100%; border: 1px solid #777; }
+  .note { background: #eef5ff; border-left: 4px solid #2f6fbb; padding: 8px; }
+</style>
+</head>
+<body>
+<h1>Présentation de l’application de commande</h1>
+
+<p>Dans le projet, j’ai fait une application de commande qui tourne sur le module portable sous Linux. En gros ce module sert à piloter les poteaux de sonorisation qui sont installés sur les points de rassemblement. Il n’y a pas de serveur central : les bases fixes sont juste sur le même réseau, et le module portable discute directement avec elles.</p>
+
+<p>L’interface est faite en C++ avec Qt. Elle est prévue pour un petit écran horizontal, environ 800 x 480, donc les menus sont séparés pour ne pas tout mettre au même endroit. Le but c’est que l’utilisateur puisse voir rapidement quelles bases sont disponibles, choisir les poteaux ciblés, lancer un message préenregistré ou utiliser le mode micro.</p>
+
+<p class="note"><strong>Voir annexes :</strong> les captures des menus principaux sont mises à la fin de cette partie pour montrer concrètement comment l’application est organisée.</p>
+
+<h2>Fonctionnement général</h2>
+
+<p>Le fonctionnement est découpé en plusieurs menus. Le menu <strong>Bases</strong> sert à voir les poteaux disponibles et à choisir ceux qui vont diffuser. Le menu <strong>Carte</strong> affiche les points autour de Télécom Physique Strasbourg et du pôle API. Le menu <strong>Diffusion</strong> permet de lancer un message déjà présent dans la bibliothèque audio. Le menu <strong>Direct</strong> sert au mode mégaphone en temps réel. Enfin le menu <strong>Enregistrement</strong> permet d’enregistrer un message, de le réécouter, puis de le diffuser ou de le sauvegarder.</p>
+
+<p>Pour éviter les erreurs, dès qu’une action peut faire diffuser du son sur les poteaux, l’application demande une validation avec la liste des poteaux concernés. Comme ça on voit bien quelles bases vont parler avant d’envoyer le son.</p>
+
+<h2>Communication entre les modules</h2>
+
+<p>Pour les commandes qui ne sont pas de l’audio, l’application envoie des requêtes de contrôle aux bases fixes. Par exemple pour savoir l’état d’une base, lancer un message préenregistré, arrêter une diffusion, supprimer un audio ou synchroniser la bibliothèque. Ces échanges sont légers et passent sur le réseau local.</p>
+
+<p>Pour le son en direct, le fonctionnement est différent. Le flux audio utilise Roc Toolkit avec Opus pour économiser le débit. Le son est envoyé en multicast dans la plage 239.0.0.0/8, ici avec l’adresse 239.42.0.10, parce que c’est plus adapté au réseau mesh HaLow avec batman-adv. Comme ça le réseau peut transporter le flux une seule fois au lieu de faire une copie séparée pour chaque poteau.</p>
+
+<h2>Structure du programme</h2>
+
+<p>Le projet est séparé en deux programmes C++ :</p>
+
+<ul>
+  <li><strong>portable-console</strong> : c’est l’application avec interface Qt qui tourne sur le module portable. Elle affiche les menus, la carte, les bases, les boutons de diffusion et l’enregistrement.</li>
+  <li><strong>fixed-base-service</strong> : c’est le service lancé sur chaque base fixe. Il écoute les commandes réseau, gère les fichiers audio locaux et déclenche la sortie son du poteau.</li>
+</ul>
+
+<p>Il y a aussi une partie commune dans le code pour les modèles de données et les structures partagées. Les fichiers de configuration permettent de définir l’identifiant, le nom, la position GPS, les ports réseau et les dossiers audio de chaque base. Pour les tests, le projet contient une simulation locale avec plusieurs bases autour de Télécom Physique Strasbourg.</p>
+
+<h2>Menus principaux</h2>
+
+<h3>Menu Bases</h3>
+<p>Ce menu sert à choisir les poteaux ciblés. Un appui court sur une base permet de la sélectionner ou de la désélectionner. Un appui long ouvre le menu de paramètres de cette base. On voit aussi rapidement l’état, le signal, la batterie simulée et si la base est disponible.</p>
+<figure>
+  <img src="screenshots/01-bases.png" alt="Menu Bases">
+  <figcaption>Annexe 1 - Menu Bases : choix des poteaux et état rapide du réseau.</figcaption>
+</figure>
+
+<h3>Menu Carte</h3>
+<p>La carte affiche les points de rassemblement autour du secteur. Elle est prévue pour marcher hors ligne avec des tuiles préparées à l’avance. Les points permettent de voir la position des poteaux et leur état de manière plus visuelle.</p>
+<figure>
+  <img src="screenshots/02-carte.png" alt="Menu Carte">
+  <figcaption>Annexe 2 - Menu Carte : visualisation des points de rassemblement.</figcaption>
+</figure>
+
+<h3>Menu Diffusion</h3>
+<p>Ce menu permet de choisir un message préenregistré et de le lancer sur les bases sélectionnées. On peut aussi régler un intervalle ou une durée si le message doit être répété. Avant l’envoi, une confirmation indique les poteaux qui vont diffuser.</p>
+<figure>
+  <img src="screenshots/03-diffusion.png" alt="Menu Diffusion">
+  <figcaption>Annexe 3 - Menu Diffusion : lecture des messages déjà présents dans la bibliothèque.</figcaption>
+</figure>
+
+<h3>Menu Direct</h3>
+<p>Le menu Direct correspond au mode mégaphone. Quand on lance ce mode, la voix du micro est encodée en Opus puis envoyée en multicast vers les bases sélectionnées. Il y a aussi une option anti-larsen pour limiter le retour audio quand le micro et les haut-parleurs sont proches.</p>
+<figure>
+  <img src="screenshots/04-direct.png" alt="Menu Direct">
+  <figcaption>Annexe 4 - Menu Direct : diffusion micro en temps réel.</figcaption>
+</figure>
+
+<h3>Menu Enregistrement</h3>
+<p>Ce menu sert à préparer un nouveau message. On peut enregistrer, voir le niveau de voix, vérifier la saturation, écouter le résultat, puis soit le diffuser directement, soit le sauvegarder dans les préenregistrements. Ce fonctionnement évite d’envoyer un message raté sur les poteaux sans l’avoir validé avant.</p>
+<figure>
+  <img src="screenshots/05-enregistrement.png" alt="Menu Enregistrement">
+  <figcaption>Annexe 5 - Menu Enregistrement : création et validation d’un nouveau message audio.</figcaption>
+</figure>
+
+<h3>Paramètres d’un poteau</h3>
+<p>Depuis la liste des bases, un appui long ouvre le menu de paramètres. Ce menu permet de modifier les informations du poteau comme le nom ou la position, mais aussi de gérer les audios présents sur la base. On peut synchroniser les audios manquants ou supprimer un fichier audio d’un poteau.</p>
+<figure>
+  <img src="screenshots/06-parametres-poteau.png" alt="Paramètres poteau">
+  <figcaption>Annexe 6 - Paramètres d’un poteau : modification des infos et gestion des audios locaux.</figcaption>
+</figure>
+
+<h2>Bilan</h2>
+<p>Au final l’application sert de console portable pour commander tout le système. Elle permet de gérer les bases sans serveur central, de lancer des messages déjà stockés sur les poteaux, d’utiliser le micro en direct et de préparer de nouveaux messages. La séparation entre l’application portable et le service des bases fixes rend le système plus simple à tester et plus proche du fonctionnement réel sur le réseau HaLow.</p>
+</body>
+</html>

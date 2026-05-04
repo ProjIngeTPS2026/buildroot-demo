@@ -1,0 +1,15 @@
+config BR2_PACKAGE_MORSE_CLI
+	bool "Morse Micro CLI tools"
+	depends on BR2_TOOLCHAIN_HAS_THREADS # libnl
+	depends on BR2_TOOLCHAIN_GCC_AT_LEAST_4_9 # libusb
+	select BR2_PACKAGE_LIBNL
+	select BR2_PACKAGE_LIBUSB
+	help
+	  Morse Micro user-space control utility.
+
+comment "Morse Micro CLI tools need a toolchain w/ threads"
+	depends on !BR2_TOOLCHAIN_HAS_THREADS
+
+comment "Morse Micro CLI tools need a toolchain w/ gcc >= 4.9"
+	depends on BR2_TOOLCHAIN_HAS_THREADS
+	depends on !BR2_TOOLCHAIN_GCC_AT_LEAST_4_9

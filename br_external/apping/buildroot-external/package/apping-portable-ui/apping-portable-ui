@@ -1,0 +1,9 @@
+#!/bin/sh
+
+[ -r /etc/default/apping-portable-ui ] && . /etc/default/apping-portable-ui
+
+export APPING_ROOT="/usr/share/apping"
+[ -n "$APPING_ROC_MULTICAST_IFACE" ] && export APPING_ROC_MULTICAST_IFACE
+[ -n "$QT_QPA_PLATFORM" ] && export QT_QPA_PLATFORM
+
+exec /usr/bin/portable-console --portable-config /etc/apping/portable-console.json "$@"

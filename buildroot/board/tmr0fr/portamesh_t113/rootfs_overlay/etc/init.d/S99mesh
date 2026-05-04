@@ -1,0 +1,53 @@
+
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          batman-mesh
+# Required-Start:    $network
+# Required-Stop:     $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: batman-adv setup
+### END INIT INFO
+
+IFACE=wlan0
+BATIF=bat0
+MTU=2304
+IPADDR="192.168.6.10/24"
+
+start() {
+    echo "batman-adv start"
+
+    modprobe batman-adv
+
+    ip link set $IFACE mtu $MTU
+
+    ip link add $BATIF type batadv
+    #ip link set $BATIF mtu $MTU
+
+    ip link set $IFACE master $BATIF
+
+    ip link set $BATIF up
+    ip link set $IFACE up
+
+    ip addr add $IPADDR dev $BATIF
+}
+
+stop() {
+    echo "batman-adv stop"
+
+    ip addr flush dev $BATIF
+
+    ip link set $IFACE nomaster
+
+    ip link set $BATIF down
+
+    ip link del $BATIF
+}
+
+case "$1" in
+    start) start ;;
+    stop) stop ;;
+    restart) stop; start ;;
+    *) echo "Usage: $0 {start|stop|restart}" ;;
+esac
+

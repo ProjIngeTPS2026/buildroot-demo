@@ -1,0 +1,17 @@
+menu "Apping"
+
+source "$BR2_EXTERNAL_APPING_PATH/package/apping-roc-toolkit-opus/Config.in"
+source "$BR2_EXTERNAL_APPING_PATH/package/apping-fixed-base/Config.in"
+source "$BR2_EXTERNAL_APPING_PATH/package/apping-portable-ui/Config.in"
+
+config BR2_PACKAGE_APPING_ROC_MULTICAST_IFACE
+	string "Roc multicast interface"
+	depends on BR2_PACKAGE_APPING_FIXED_BASE || BR2_PACKAGE_APPING_PORTABLE_UI
+	help
+	  Optional interface passed through APPING_ROC_MULTICAST_IFACE.
+	  It may be an IPv4 address, or an interface name resolved by Apping
+	  before calling Roc.
+	  Leave empty for normal target routing. Set it to the batman-adv mesh
+	  interface only if Roc needs an explicit multicast interface.
+
+endmenu

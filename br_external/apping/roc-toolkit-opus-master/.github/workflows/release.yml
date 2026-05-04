@@ -1,0 +1,74 @@
+name: "release"
+
+on:
+  push:
+    tags:
+      - v*
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    if: >-
+      github.repository_owner == 'roc-streaming' && startsWith(github.ref, 'refs/tags/v')
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - script: linux-checks/check-version
+
+    name: ${{ matrix.script }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Run check
+        run: |
+          scripts/ci_checks/${{ matrix.script }}.sh
+
+  package:
+    needs: [verify]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+
+    - name: Detect version
+      id: ver
+      run: |
+        echo "GIT_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
+
+    - name: Build deb packages
+      run: scripts/make_deb.sh build
+
+    - name: Check deb packages
+      run: scripts/make_deb.sh check
+
+    - name: Publish release
+      uses: softprops/action-gh-release@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        files: |
+          dist/*.deb
+        name: ${{ steps.ver.outputs.GIT_TAG }}
+        tag_name: ${{ steps.ver.outputs.GIT_TAG }}
+        fail_on_unmatched_files: true
+        draft: true
+        prerelease: true

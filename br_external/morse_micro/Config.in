@@ -1,0 +1,5 @@
+menu "Morse External Packages"
+    source "$BR2_EXTERNAL_MORSE_EXTERNAL_PATH/package/morse/Config.in"
+    source "$BR2_EXTERNAL_MORSE_EXTERNAL_PATH/package/morse-tools/Config.in"
+    source "$BR2_EXTERNAL_MORSE_EXTERNAL_PATH/package/morse-cli/Config.in"
+endmenu

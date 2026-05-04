@@ -1,0 +1,92 @@
+/** @mainpage Roc Toolkit internal modules
+    Doxygen-generated documentation for <a href="https://roc-streaming.org/">Roc Toolkit</a>
+    internal modules.
+*/
+
+//! @namespace roc
+//! Root namespace.
+namespace roc {}
+
+namespace roc {
+  //! @namespace roc::core
+  //! General-purpose building blocks and platform abstraction layer.
+  namepsace core {}
+}
+
+namespace roc {
+  //! @namespace roc::status
+  //! Status codes.
+  namepsace status {}
+}
+
+namespace roc {
+  //! @namespace roc::address
+  //! URIs and addresses.
+  namepsace address {}
+}
+
+namespace roc {
+  //! @namespace roc::packet
+  //! Network packets and packet processing.
+  namepsace packet {}
+}
+
+namespace roc {
+  //! @namespace roc::audio
+  //! Audio frames and audio processing.
+  namepsace audio {}
+}
+
+namespace roc {
+  //! @namespace roc::rtp
+  //! RTP protocol support.
+  namepsace rtp {}
+}
+
+namespace roc {
+  //! @namespace roc::rtcp
+  //! RTCP protocol support.
+  namepsace rtcp {}
+}
+
+namespace roc {
+  //! @namespace roc::fec
+  //! FEC support.
+  namepsace fec {}
+}
+
+namespace roc {
+  //! @namespace roc::sdp
+  //! SDP protocol support.
+  namepsace sdp {}
+}
+
+namespace roc {
+  //! @namespace roc::pipeline
+  //! Sender and receiver processing pipelines.
+  namepsace pipeline {}
+}
+
+namespace roc {
+  //! @namespace roc::ctl
+  //! Control tasks event loop.
+  namepsace ctl {}
+}
+
+namespace roc {
+  //! @namespace roc::node
+  //! High-level sender and receiver nodes.
+  namepsace node {}
+}
+
+namespace roc {
+  //! @namespace roc::netio
+  //! Network I/O.
+  namepsace netio {}
+}
+
+namespace roc {
+  //! @namespace roc::sndio
+  //! Sound I/O.
+  namepsace sndio {}
+}

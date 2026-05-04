@@ -1,0 +1,5 @@
+config BR2_PACKAGE_MORSE
+    bool "Morse Micro WiFi HaLow driver"
+    depends on BR2_LINUX_KERNEL
+    help
+      Kernel module for Morse Micro WiFi HaLow chips (802.11ah)

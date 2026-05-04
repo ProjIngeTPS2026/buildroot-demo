@@ -1,0 +1,40 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "qtcreator-debug",
+      "displayName": "Qt Creator Debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-qtcreator-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "qtcreator-release",
+      "displayName": "Qt Creator Release",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-qtcreator-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "qtcreator-debug",
+      "configurePreset": "qtcreator-debug"
+    },
+    {
+      "name": "qtcreator-release",
+      "configurePreset": "qtcreator-release"
+    }
+  ]
+}

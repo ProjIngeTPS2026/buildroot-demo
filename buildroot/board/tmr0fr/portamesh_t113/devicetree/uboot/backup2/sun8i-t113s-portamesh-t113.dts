@@ -1,0 +1,90 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+// Copyright (C) 2022 Arm Ltd.
+
+#include <dt-bindings/interrupt-controller/irq.h>
+
+/dts-v1/;
+
+#include "sun8i-t113s.dtsi"
+#include "sunxi-d1s-t113-portamesh.dtsi"
+
+/ {
+	model = "Portamesh proto";
+	compatible = "tmr0fr,sunxi-d1s-t113-portamesh", "allwinner,sun8i-t113s";
+
+	aliases {
+		ethernet0 = &rtl8189ftv;
+	};
+
+        /*
+        chosen {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		simplefb_lcd: framebuffer-lcd0 {
+			compatible = "allwinner,simple-framebuffer",
+				     "simple-framebuffer";
+			allwinner,pipeline = "de_be0-lcd0";
+			clocks = <&ccu CLK_BUS_DE_BE>, <&ccu CLK_DE_BE>,
+				 <&ccu CLK_DRAM_DE_BE>, <&ccu CLK_BUS_LCD>,
+				 <&ccu CLK_TCON>;
+			status = "disabled";
+		};
+	};
+        */
+
+	opp_table_cpu: opp-table-cpu {
+		//compatible = "allwinner,sun50i-h6-operating-points";
+                compatible = "operating-points-v2";
+                //nvmem-cells = <&cpu_speed_grade>;
+		//nvmem-cell-names = "speed";
+                opp-shared;
+
+                opp-288000000 {
+			opp-hz = /bits/ 64 <288000000>;
+			opp-microvolt = <880000 880000 1100000>;
+		};
+
+		opp-408000000 {
+			opp-hz = /bits/ 64 <408000000>;
+			opp-microvolt = <880000 880000 1100000>;
+		};
+
+                opp-648000000 {
+			opp-hz = /bits/ 64 <648000000>;
+			opp-microvolt = <880000 880000 1100000>;
+		};
+
+		opp-1080000000 {
+			opp-hz = /bits/ 64 <1008000000>;
+			opp-microvolt = <880000 880000 1100000>;
+		};
+	};
+};
+
+&cpu0 {
+	cpu-supply = <&reg_vcc_core>;
+        operating-points-v2 = <&opp_table_cpu>;
+        clock-frequency = <648000000>;
+};
+
+&cpu1 {
+	cpu-supply = <&reg_vcc_core>;
+        operating-points-v2 = <&opp_table_cpu>;
+        clock-frequency = <648000000>;
+};
+
+&mmc1 {
+	rtl8189ftv: wifi@1 {
+		reg = <1>;
+		interrupt-parent = <&pio>;
+		interrupts = <6 10 IRQ_TYPE_LEVEL_LOW>; /* PG10 = WL_WAKE_AP */
+		interrupt-names = "host-wake";
+	};
+};
+
+&wdt {
+    status = "okay";
+    timeout-sec = <10>;
+};

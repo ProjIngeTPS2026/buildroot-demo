@@ -1,0 +1,462 @@
+name: "build"
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+      - feature/*
+      - waspd/*
+    tags:
+      - v*
+
+  pull_request:
+
+  repository_dispatch:
+    types:
+      - trigger_build
+
+  workflow_dispatch:
+
+  schedule:
+    - cron: '0 0 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  linux-x86_64:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - script: linux-x86_64/ubuntu-24.04
+            image: rocstreaming/env-ubuntu:24.04
+
+          - script: linux-x86_64/ubuntu-22.04
+            image: rocstreaming/env-ubuntu:22.04
+
+          - script: linux-x86_64/ubuntu-20.04
+            image: rocstreaming/env-ubuntu:20.04
+
+          - script: linux-x86_64/ubuntu-18.04
+            image: rocstreaming/env-ubuntu:18.04
+
+          - script: linux-x86_64/ubuntu-16.04
+            image: rocstreaming/env-ubuntu:16.04
+
+          - script: linux-x86_64/ubuntu-14.04
+            image: rocstreaming/env-ubuntu:14.04
+
+          - script: linux-x86_64/debian
+            image: rocstreaming/env-debian
+
+          - script: linux-x86_64/fedora
+            image: rocstreaming/env-fedora
+
+          - script: linux-x86_64/opensuse
+            image: rocstreaming/env-opensuse
+
+          - script: linux-x86_64/archlinux
+            image: rocstreaming/env-archlinux
+
+          - script: linux-x86_64/alpine
+            image: rocstreaming/env-alpine
+
+    name: ${{ matrix.script }}
+    steps:
+      - name: Pull docker image
+        run: docker pull ${{ matrix.image }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build and test
+        run: |
+          scripts/ci_checks/docker.sh ${{ matrix.image }} scripts/ci_checks/${{ matrix.script }}.sh
+
+      - name: Handle failure
+        if: failure()
+        run: |
+          scripts/ci_checks/failure.sh
+
+  linux-arm:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - script: linux-arm/aarch64-linux-gnu-gcc-14.2
+            image: rocstreaming/toolchain-aarch64-linux-gnu:gcc-14.2
+
+          - script: linux-arm/aarch64-linux-gnu-gcc-10.3
+            image: rocstreaming/toolchain-aarch64-linux-gnu:gcc-10.3
+
+          - script: linux-arm/aarch64-linux-gnu-gcc-7.4
+            image: rocstreaming/toolchain-aarch64-linux-gnu:gcc-7.4
+
+          - script: linux-arm/arm-linux-gnueabihf-gcc-14.2
+            image: rocstreaming/toolchain-arm-linux-gnueabihf:gcc-14.2
+
+          - script: linux-arm/arm-linux-gnueabihf-gcc-10.3
+            image: rocstreaming/toolchain-arm-linux-gnueabihf:gcc-10.3
+
+          - script: linux-arm/arm-linux-gnueabihf-gcc-4.9
+            image: rocstreaming/toolchain-arm-linux-gnueabihf:gcc-4.9
+
+          - script: linux-arm/arm-bcm2708-linux-gnueabihf-gcc-4.9
+            image: rocstreaming/toolchain-arm-bcm2708-linux-gnueabihf:gcc-4.9
+
+    name: ${{ matrix.script }}
+    steps:
+      - name: Pull docker image
+        run: docker pull ${{ matrix.image }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build and test
+        run: |
+          scripts/ci_checks/docker.sh ${{ matrix.image }} scripts/ci_checks/${{ matrix.script }}.sh
+
+      - name: Handle failure
+        if: failure()
+        run: |
+          scripts/ci_checks/failure.sh
+
+  linux-mips:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - script: linux-mips/openwrt-linux-musl-24.10
+            image: rocstreaming/toolchain-mips-openwrt-linux-atheros:24.10
+
+          - script: linux-mips/openwrt-linux-musl-17.01
+            image: rocstreaming/toolchain-mips-openwrt-linux-atheros:17.01
+
+    name: ${{ matrix.script }}
+    steps:
+      - name: Pull docker image
+        run: docker pull ${{ matrix.image }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build and test
+        run: |
+          scripts/ci_checks/docker.sh ${{ matrix.image }} scripts/ci_checks/${{ matrix.script }}.sh
+
+      - name: Handle failure
+        if: failure()
+        run: |
+          scripts/ci_checks/failure.sh
+
+  linux-checks:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - script: linux-checks/static-shared
+            image: rocstreaming/env-ubuntu:nolibs
+
+          - script: linux-checks/conditional-build
+            image: rocstreaming/env-ubuntu:nolibs
+
+          - script: linux-checks/debug-build
+            image: rocstreaming/env-ubuntu:nolibs
+
+          - script: linux-checks/sanitizers
+            image: rocstreaming/env-ubuntu
+
+          - script: linux-checks/valgrind
+            image: rocstreaming/env-ubuntu
+
+          - script: linux-checks/check-formatting
+            image: rocstreaming/env-ubuntu
+
+          - script: linux-checks/check-scons
+            image: rocstreaming/env-ubuntu
+
+          - script: linux-checks/pulseaudio-versions
+            image: rocstreaming/env-ubuntu
+
+    name: ${{ matrix.script }}
+    steps:
+      - name: Pull docker image
+        run: docker pull ${{ matrix.image }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build and test
+        run: |
+          scripts/ci_checks/docker.sh ${{ matrix.image }} scripts/ci_checks/${{ matrix.script }}.sh
+
+      - name: Handle failure
+        if: failure()
+        run: |
+          scripts/ci_checks/failure.sh
+
+  android-linux:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # newest tested NDK and API
+          - toolchain: aarch64-linux-android34
+            ndk: ndk26
+
+          - toolchain: armv7a-linux-androideabi34
+            ndk: ndk26
+
+          - toolchain: x86_64-linux-android34
+            ndk: ndk26
+
+          - toolchain: i686-linux-android34
+            ndk: ndk26
+
+          # oldest tested NDK and API
+          - toolchain: aarch64-linux-android29
+            ndk: ndk21
+
+          - toolchain: armv7a-linux-androideabi29
+            ndk: ndk21
+
+          - toolchain: x86_64-linux-android29
+            ndk: ndk21
+
+          - toolchain: i686-linux-android29
+            ndk: ndk21
+
+    runs-on: ubuntu-latest
+
+    name: android-linux-${{ matrix.ndk }}/${{ matrix.toolchain }}
+    steps:
+      - name: Pull docker image
+        run: docker pull rocstreaming/toolchain-linux-android:${{ matrix.ndk }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build
+        run: |
+          scripts/ci_checks/docker.sh rocstreaming/toolchain-linux-android:${{ matrix.ndk }} \
+            scripts/ci_checks/android/linux.sh ${{ matrix.toolchain }}
+
+      - name: Handle failure
+        if: failure()
+        run: |
+          scripts/ci_checks/failure.sh
+
+  android-macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # newest tested versions
+          - toolchain: aarch64-linux-android34
+            abi: aarch64
+            api: 34
+            ndk-major: 26
+            ndk: 26.3.11579264
+            build_tools: 34.0.0
+            cmake: 3.22.1
+
+          # oldest tested versions
+          - toolchain: aarch64-linux-android29
+            abi: aarch64
+            api: 29
+            ndk-major: 21
+            ndk: 21.4.7075529
+            build_tools: 28.0.3
+            cmake: 3.10.2.4988404
+
+    runs-on: macos-latest
+
+    env:
+      TOOLCHAIN: ${{ matrix.toolchain }}
+      ABI: ${{ matrix.abi }}
+      API: ${{ matrix.api }}
+      NDK_VERSION: ${{ matrix.ndk }}
+
+    name: android-macos-ndk${{ matrix.ndk-major }}/${{ matrix.toolchain }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install JDK
+        uses: actions/setup-java@v4.2.2
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Install Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: ''
+
+      - name: Install Android components
+        run: |
+          sdkmanager 'platforms;android-${{ matrix.api }}'
+          sdkmanager 'build-tools;${{ matrix.build_tools }}'
+          sdkmanager 'ndk;${{ matrix.ndk }}'
+          sdkmanager 'cmake;${{ matrix.cmake }}'
+
+      - name: Build
+        run: |
+          scripts/ci_checks/android/macos.sh
+
+      - name: Handle failure
+        if: failure()
+        run: |
+          scripts/ci_checks/failure.sh
+
+  android-emu:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # newest tested versions
+          - abi: x86_64
+            api: 33
+            ndk-major: 26
+            ndk: 26.3.11579264
+            cmake: 3.22.1
+
+          # oldset tested versions
+          - abi: x86_64
+            api: 29
+            ndk-major: 21
+            ndk: 21.4.7075529
+            cmake: 3.10.2.4988404
+
+    runs-on: ubuntu-latest
+
+    env:
+      ABI: ${{ matrix.abi }}
+      API: ${{ matrix.api }}
+
+    name: android-emu-ndk${{ matrix.ndk-major }}/${{ matrix.abi }}-android${{ matrix.api }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Enable KVM
+        run: |
+          scripts/android_emu/emulator.sh enable_kvm
+
+      - name: Setup AVD cache
+        uses: actions/cache@v4
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-${{ matrix.abi }}-android${{ matrix.api }}-ndk${{ matrix.ndk }}
+
+      - name: Populate AVD cache
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          arch: ${{ matrix.abi }}
+          ndk: ${{ matrix.ndk }}
+          cmake: ${{ matrix.cmake }}
+          force-avd-creation: false
+          script: |
+            echo "Generated AVD"
+
+      - name: Install dependencies
+        run: |
+          scripts/android_emu/project.sh install_deps
+
+      - name: Build
+        run: |
+          scripts/android_emu/project.sh build
+
+      - name: Run tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          arch: ${{ matrix.abi }}
+          ndk: ${{ matrix.ndk }}
+          cmake: ${{ matrix.cmake }}
+          force-avd-creation: false
+          script: |
+            scripts/android_emu/emulator.sh create_routes
+            scripts/android_emu/project.sh run_tests
+
+      - name: Handle failure
+        if: failure()
+        run: |
+          scripts/ci_checks/failure.sh
+
+  macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - macos-arch: arm64
+            macos-version: 15
+            script: standard-build
+
+          - macos-arch: arm64
+            macos-version: 15
+            script: build-3rdparty
+
+          - macos-arch: arm64
+            macos-version: 15
+            script: universal-binaries
+
+          - macos-arch: arm64
+            macos-version: 14
+            script: standard-build
+
+          - macos-arch: x86_64
+            macos-version: 13
+            script: standard-build
+
+    runs-on: macos-${{ matrix.macos-version }}
+
+    name: macos${{ matrix.macos-version }}-${{ matrix.macos-arch }}/${{ matrix.script }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build and test
+        run: |
+          scripts/ci_checks/macos/${{ matrix.script }}.sh
+
+      - name: Handle failure
+        if: failure()
+        run: |
+          scripts/ci_checks/failure.sh

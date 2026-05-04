@@ -1,0 +1,61 @@
+# build results
+/bin
+/build
+/dist
+/docs/html
+
+# scons
+.sconsign*.dblite
+.sconf_temp
+config.log
+build.log
+
+# clang
+compile_commands.json
+.cache
+
+# gdb
+.gdb_history
+
+# doxygen
+doxygen_*.db
+doxygen_*.tmp
+
+# diagrams
+*.dia~
+.$*.bkp
+
+# python
+__pycache__/
+*.pyc
+
+# emacs
+.#*
+.dir-locals.el
+TODO.org
+
+# vim
+*.sw[nop]
+
+# clion
+.idea/
+
+# ctags
+/tags
+
+# deb
+debian/.debhelper
+debian/debhelper-build-stamp
+debian/files
+debian/tmp
+debian/*.substvars
+debian/*.debhelper.log
+debian/libroc
+debian/libroc-dev
+debian/roc
+
+# personal
+/Makefile
+.justfile
+.projectile
+.unisonignore

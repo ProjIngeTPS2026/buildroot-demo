@@ -1,0 +1,14 @@
+{
+  "title": "Secteur Télécom Physique Strasbourg",
+  "image_relative_path": "assets/map/telecom_physique_strasbourg_sector.svg",
+  "offline_tiles_relative_path": "assets/map/telecom_physique_strasbourg_tiles",
+  "min_lat": 48.52485,
+  "max_lat": 48.5274,
+  "min_lon": 7.7348,
+  "max_lon": 7.74095,
+  "center_lat": 48.52612711926707,
+  "center_lon": 7.737883288200957,
+  "default_zoom": 17.0,
+  "min_zoom": 16.0,
+  "max_zoom": 19.0
+}

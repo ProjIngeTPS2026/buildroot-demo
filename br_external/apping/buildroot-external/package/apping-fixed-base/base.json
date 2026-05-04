@@ -1,0 +1,16 @@
+{
+  "base_id": "base-001",
+  "name": "Point de rassemblement 1",
+  "description": "Poteau fixe Apping",
+  "lat": 48.52612047433074,
+  "lon": 7.736181531404865,
+  "control_port": 18101,
+  "discovery_port": 17100,
+  "megaphone_port": 19101,
+  "multicast_address": "239.42.0.10",
+  "multicast_port": 19100,
+  "multicast_interface": "@APPING_ROC_MULTICAST_IFACE@",
+  "discovery_interval_ms": 2000,
+  "media_root": "/var/lib/apping/base",
+  "audio_output_uri": "pulse://default"
+}

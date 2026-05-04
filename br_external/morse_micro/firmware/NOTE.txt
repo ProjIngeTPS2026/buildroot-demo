@@ -1,0 +1,2 @@
+Ici, bcf_default.bin est le bcf pour le Heltec HT-HC01.
+https://resource.heltec.cn/download/HT-HC01/BCF/driver_1_15_3

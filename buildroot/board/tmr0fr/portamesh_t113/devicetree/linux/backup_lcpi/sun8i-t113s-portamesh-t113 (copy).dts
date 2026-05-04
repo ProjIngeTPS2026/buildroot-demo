@@ -1,0 +1,118 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+// Copyright (C) 2022 Arm Ltd.
+
+#include <dt-bindings/interrupt-controller/irq.h>
+
+/dts-v1/;
+
+#include "allwinner/sun8i-t113s.dtsi"
+#include "sunxi-d1s-t113-portamesh.dtsi"
+
+/ {
+	model = "Portamesh proto";
+	compatible = "tmr0fr,sunxi-d1s-t113-portamesh", "allwinner,sun8i-t113s";
+
+        /*
+        chosen {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		simplefb_lcd: framebuffer-lcd0 {
+			compatible = "allwinner,simple-framebuffer",
+				     "simple-framebuffer";
+			allwinner,pipeline = "de_be0-lcd0";
+			clocks = <&ccu CLK_BUS_DE_BE>, <&ccu CLK_DE_BE>,
+				 <&ccu CLK_DRAM_DE_BE>, <&ccu CLK_BUS_LCD>,
+				 <&ccu CLK_TCON>;
+			status = "disabled";
+		};
+	};
+        */
+
+	opp_table_cpu: opp-table-cpu {
+                // Fréquences doivent être des multiples de 24MHz
+                // Tensions de 0.85 à 0.99v d'après datasheet allwinner t113-s3. En saut de 10mV (selon datasheet AXP813)
+                // Tension VCORE limitée à 1v dans device tree principal. Peut être limitée à vos risques et périls.
+
+                // TODO : trouver un clock-latency-ns moins conservateur mais encore stable.
+
+		//compatible = "allwinner,sun50i-h6-operating-points";
+                compatible = "operating-points-v2";
+                //nvmem-cells = <&cpu_speed_grade>;
+		//nvmem-cell-names = "speed";
+                opp-shared;
+
+                opp-288000000 {
+			opp-hz = /bits/ 64 <288000000>;
+			opp-microvolt = <900000 900000 9900000>;
+                        clock-latency-ns = <290000>;
+		};
+
+		opp-408000000 {
+			opp-hz = /bits/ 64 <408000000>;
+			opp-microvolt = <900000 900000 900000>;
+                        clock-latency-ns = <290000>;
+		};
+
+                opp-648000000 {
+			opp-hz = /bits/ 64 <648000000>;
+			opp-microvolt = <900000 900000 900000>;
+                        clock-latency-ns = <290000>;
+		};
+
+		opp-1008000000 {
+			opp-hz = /bits/ 64 <1008000000>;
+			opp-microvolt = <900000 900000 900000>;
+                        clock-latency-ns = <290000>;
+		};
+
+                // OVERCLOCK
+
+                // 1.2Ghz expérimental
+                // pas stable au long terme
+                // à 910mv -> semble stable sur t113-s4
+                /*
+		opp-1200000000 {
+			opp-hz = /bits/ 64 <1200000000>;
+			opp-microvolt = <910000 910000 910000>;
+                        clock-latency-ns = <290000>;    // 0.29ms
+		};
+/*
+		// 1.4Ghz expérimental
+		// pas stable au bout de quelques minutes
+		opp-1392000000 {
+			opp-hz = /bits/ 64 <1392000000>;
+			opp-microvolt = <950000 950000 950000>;
+                        clock-latency-ns = <290000>;
+		};
+
+                // 1.6Ghz expérimental
+		// pas stable du tout
+		opp-1600000008 {
+			opp-hz = /bits/ 64 <1600000008>;
+			opp-microvolt = <1000000 1000000 1000000>;
+                        clock-latency-ns = <290000>;
+		};
+*/
+	};
+};
+
+&cpu0 {
+	cpu-supply = <&reg_vcc_core>;
+        operating-points-v2 = <&opp_table_cpu>;
+        clock-frequency = <288000000>;  // changé pour freq minimale, car c'est ce que schedutil à l'air d'utiliser comme freq de repos.
+};
+
+&cpu1 {
+	cpu-supply = <&reg_vcc_core>;
+        operating-points-v2 = <&opp_table_cpu>;
+        clock-frequency = <288000000>;
+};
+
+
+// Watchdog indispensable au reboot du système depuis Linux
+// Noeud originalement omis dans le DT pour Mangopi. Empèche le reboot du système.
+&wdt {
+	status = "okay";
+};

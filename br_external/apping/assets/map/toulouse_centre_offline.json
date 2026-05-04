@@ -1,0 +1,13 @@
+{
+  "title": "Toulouse centre offline",
+  "offline_tiles_relative_path": "assets/map/toulouse_centre_tiles",
+  "min_lat": 43.585,
+  "max_lat": 43.625,
+  "min_lon": 1.400,
+  "max_lon": 1.485,
+  "center_lat": 43.6045,
+  "center_lon": 1.444,
+  "default_zoom": 14.4,
+  "min_zoom": 12.0,
+  "max_zoom": 16.0
+}

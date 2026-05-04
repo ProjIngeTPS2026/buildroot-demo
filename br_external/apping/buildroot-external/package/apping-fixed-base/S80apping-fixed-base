@@ -1,0 +1,31 @@
+#!/bin/sh
+
+DAEMON="/usr/bin/fixed-base-service"
+CONFIG="/etc/apping/base.json"
+PIDFILE="/var/run/apping-fixed-base.pid"
+
+export APPING_ROOT="/usr/share/apping"
+
+case "$1" in
+	start)
+		printf 'Starting apping fixed base: '
+		start-stop-daemon -S -q -b -m -p "$PIDFILE" --exec "$DAEMON" -- --config "$CONFIG"
+		[ $? = 0 ] && echo "OK" || echo "FAIL"
+		;;
+	stop)
+		printf 'Stopping apping fixed base: '
+		start-stop-daemon -K -q -p "$PIDFILE"
+		[ $? = 0 ] && echo "OK" || echo "FAIL"
+		rm -f "$PIDFILE"
+		;;
+	restart|reload)
+		"$0" stop
+		"$0" start
+		;;
+	*)
+		echo "Usage: $0 {start|stop|restart}"
+		exit 1
+		;;
+esac
+
+exit 0
